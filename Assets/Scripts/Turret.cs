@@ -31,9 +31,14 @@ public class Turret : MonoBehaviour
     [SerializeField] float turretTurnSpeed = 7f;
     [SerializeField] Transform firePoint;
 
+    [Header("Audio")]
+    [SerializeField] AudioClip attackSound;
+    private AudioSource audioSource;
+
     void Start()
     {
         InvokeRepeating("UpdateTarget", 0f, 0.5f);
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -78,7 +83,7 @@ public class Turret : MonoBehaviour
             lineRenderer.enabled = true; 
             impactEffect.Play();
             impactLight.enabled = true;
-
+            PlayAttackSound();
         }
         lineRenderer.SetPosition(0, firePoint.position);
         lineRenderer.SetPosition(1, target.position);
@@ -105,6 +110,7 @@ public class Turret : MonoBehaviour
         Bullet bullet = instantiatedBullet.GetComponent<Bullet>();
         if(bullet != null)
         {
+            PlayAttackSound();
             bullet.Seek(target);
         }
     }
@@ -139,6 +145,14 @@ public class Turret : MonoBehaviour
         else 
         { 
             target = null; 
+        }
+    }
+
+    private void PlayAttackSound()
+    {
+        if (attackSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(attackSound);
         }
     }
 }

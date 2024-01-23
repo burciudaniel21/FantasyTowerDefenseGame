@@ -11,6 +11,7 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] float timeBetweenWaves = 5f;
     private float countdown = 2.5f; // time before spawning the first wave
     [SerializeField] TMP_Text waveCountdownText;
+    [SerializeField] GameObject bossEnemyPrefab;
 
     private void Start()
     {
@@ -30,21 +31,39 @@ public class WaveSpawner : MonoBehaviour
     {
         PlayerStats.roundsSurvived++;
         waveCountdownText.text = Convert.ToString(PlayerStats.roundsSurvived);
-        Wave wave = GetRandomWave();
 
-        int numberOfEnemies = UnityEngine.Random.Range(wave.minNumberOfEnemies, wave.maxNumberOfEnemies + 1);
+        if (PlayerStats.roundsSurvived % 10 == 0) // Check if it's a multiple of 10
+        {
+            yield return StartCoroutine(SpawnBossWave());
+        }
+        else
+        {
+            Wave wave = GetRandomWave();
+            int numberOfEnemies = UnityEngine.Random.Range(wave.minNumberOfEnemies, wave.maxNumberOfEnemies + 1);
 
-        for (int i = 0; i < numberOfEnemies; i++)
-        {            
-            GameObject randomEnemy = wave.GetRandomEnemy();
-            SpawnEnemy(randomEnemy);
+            for (int i = 0; i < numberOfEnemies; i++)
+            {
+                GameObject randomEnemy = wave.GetRandomEnemy();
+                SpawnEnemy(randomEnemy);
 
-            float timeDelay = 0.2f / wave.spawnRate; // Decreased time delay for faster spawning
-            float additionalDelay = 0.1f; // Decreased additional delay
+                float timeDelay = 0.2f / wave.spawnRate; // Decreased time delay for faster spawning
+                float additionalDelay = 0.1f; // Decreased additional delay
 
-            yield return new WaitForSeconds(timeDelay + (additionalDelay * i));
+                yield return new WaitForSeconds(timeDelay + (additionalDelay * i));
+            }
         }
     }
+
+    IEnumerator SpawnBossWave()
+    {
+        GameObject bossEnemy = Instantiate(bossEnemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        enemiesAlive++;
+
+        yield return new WaitUntil(() => bossEnemy == null);
+
+        yield return new WaitForSeconds(1f);
+    }
+
 
     private void SpawnEnemy(GameObject enemy)
     {

@@ -8,6 +8,7 @@ public class EnemyMovement : MonoBehaviour
     private Transform target;
     private int wavepointIndex = 0;
     PlayerStats playerStats;
+    [SerializeField] int damage = 1;
 
     private Enemy enemy;
     [SerializeField] GameObject ObjectToFaceWaypoint;
@@ -54,9 +55,8 @@ public class EnemyMovement : MonoBehaviour
     private void EnnemyReachesEndpoint() //update lives and destroy the enemy 
     {
         Destroy(gameObject);
-        Debug.Log("Enemy destroyed.");
         WaveSpawner.enemiesAlive--;
-        playerStats.ReduceHP(1);
+        playerStats.ReduceHP(damage);
         
     }
 }
